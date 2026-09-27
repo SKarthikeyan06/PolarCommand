@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PolarCommand — Expedition Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07111f;
+  --panel: #0d1b2d;
+  --panel2: #10243a;
+  --line: #1d3852;
+  --text: #e9f3fb;
+  --muted: #8fa8bc;
+  --cyan: #37d5ff;
+  --green: #36e0a0;
+  --amber: #ffc857;
+  --red: #ff596d;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #050d18, #09192b 55%, #050e1a);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #07111f; }
+::-webkit-scrollbar-thumb { background: #1b3854; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar Navigation */
+.side {
+  width: 240px;
+  background: #081523;
+  border-right: 1px solid var(--line);
+  padding: 22px 15px;
+  position: fixed;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 18px;
+  margin-bottom: 28px;
+  cursor: pointer;
+  user-select: none;
+}
+.logoMark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #29d8ff, #2672ff);
+  display: grid;
+  place-items: center;
+  color: #03111e;
+  font-weight: 900;
+  box-shadow: 0 0 12px rgba(55, 213, 255, 0.4);
+}
+
+.nav { display: grid; gap: 6px; flex: 1; overflow-y: auto; padding-right: 2px; }
+.nav a {
+  padding: 11px 13px;
+  border-radius: 10px;
+  color: var(--muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.nav a.active, .nav a:hover {
+  background: #10283e;
+  color: white;
+}
+.nav a.active {
+  border-left: 3px solid var(--cyan);
+  background: linear-gradient(90deg, #122d46, #0c2033);
+  color: var(--cyan);
+  font-weight: 700;
+}
+.ico { display: inline-block; width: 22px; text-align: center; font-size: 15px; }
+
+.bottom {
+  margin-top: auto;
+  background: #0c2033;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+/* Main Workspace */
+.main {
+  margin-left: 240px;
+  width: calc(100% - 240px);
+  padding: 22px 28px 40px;
+  min-height: 100vh;
+}
+
+/* Header */
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--cyan); font-size: 11px; letter-spacing: 1.6px; font-weight: 800; text-transform: uppercase; }
+.title { font-size: 26px; font-weight: 800; margin: 3px 0 2px; letter-spacing: -0.5px; }
+.sub { color: var(--muted); font-size: 13px; }
+
+.actions { display: flex; gap: 10px; align-items: center; }
+.pill {
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #0b1c2d;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pill:hover { border-color: var(--cyan); color: var(--text); }
+.online { color: var(--green); }
+.offline { color: var(--amber); }
+.danger-mode { color: var(--red); }
+
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 16px;
+  background: #20c7f0;
+  color: #03131f;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(32, 199, 240, 0.25);
+}
+button:hover {
+  background: #4ae0ff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(32, 199, 240, 0.35);
+}
+button:active { transform: translateY(0); }
+button.btn-secondary {
+  background: #152d45;
+  color: var(--text);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+button.btn-secondary:hover { background: #1c3b5a; border-color: var(--cyan); }
+button.btn-danger {
+  background: var(--red);
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 89, 109, 0.3);
+}
+button.btn-danger:hover { background: #ff7384; box-shadow: 0 6px 16px rgba(255, 89, 109, 0.4); }
+
+/* Common Grid & Cards */
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.card {
+  background: linear-gradient(145deg, #0d1c2e, #0b1929);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  transition: border-color 0.2s ease;
+}
+.card.clickable { cursor: pointer; }
+.card.clickable:hover { border-color: var(--cyan); transform: translateY(-2px); }
+
+.stat { min-height: 112px; }
+.statTop { display: flex; justify-content: space-between; color: var(--muted); font-weight: 600; font-size: 13px; }
+.num { font-size: 30px; font-weight: 800; margin: 10px 0 3px; font-family: var(--font-mono); letter-spacing: -1px; }
+.good { color: var(--green); font-weight: 600; font-size: 12px; }
+.warn { color: var(--amber); font-weight: 600; font-size: 12px; }
+.danger { color: var(--red); font-weight: 600; font-size: 12px; }
+
+.content { display: grid; grid-template-columns: 1.65fr 1fr; gap: 14px; margin-top: 14px; }
+
+/* Interactive Polar Map */
+.map {
+  height: 400px;
+  position: relative;
+  overflow: hidden;
+  background: #061625;
+  border-radius: 14px;
+}
+.map:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(#153249 1px, transparent 1px), linear-gradient(90deg, #153249 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: .4;
+}
+
+/* Radar Sweep Line */
+.radar-sweep {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  top: 50%;
+  left: 50%;
+  margin-top: -250px;
+  margin-left: -250px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(55, 213, 255, 0.15) 0deg, transparent 60deg, transparent 360deg);
+  animation: sweep 8s linear infinite;
+  pointer-events: none;
+}
+@keyframes sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ice {
+  position: absolute;
+  width: 540px;
+  height: 300px;
+  left: 8%;
+  top: 14%;
+  background: linear-gradient(145deg, #dff8ff, #7ac0db 50%, #bfefff);
+  clip-path: polygon(0 28%, 16% 12%, 31% 21%, 47% 8%, 64% 18%, 78% 5%, 100% 20%, 93% 52%, 100% 72%, 78% 89%, 55% 78%, 37% 95%, 18% 80%, 4% 86%);
+  opacity: .15;
+}
+.route-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.zone-circle {
+  position: absolute;
+  border: 1.5px dashed var(--green);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(54, 224, 160, 0.04);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.pin {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 0 4px rgba(55, 213, 255, 0.25), 0 0 15px var(--cyan);
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 10;
+}
+.pin:hover {
+  transform: translate(-50%, -50%) scale(1.3);
+  box-shadow: 0 0 0 8px rgba(55, 213, 255, 0.4), 0 0 22px var(--cyan);
+  z-index: 20;
+}
+.pin.pin-green { background: var(--green); box-shadow: 0 0 0 4px rgba(54, 224, 160, 0.25), 0 0 15px var(--green); }
+.pin.pin-amber { background: var(--amber); box-shadow: 0 0 0 4px rgba(255, 200, 87, 0.25), 0 0 15px var(--amber); }
+.pin.pin-red { background: var(--red); box-shadow: 0 0 0 4px rgba(255, 89, 109, 0.3), 0 0 20px var(--red); animation: pulse 1s infinite alternate; }
+
+@keyframes pulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  100% { transform: translate(-50%, -50%) scale(1.4); }
+}
+
+.pin-label {
+  position: absolute;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(6, 20, 34, 0.85);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, 10px);
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+.mapLabel {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(7, 23, 37, 0.9);
+  border: 1px solid var(--line);
+  padding: 8px 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+  z-index: 5;
+}
+.mapControls {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+}
+.mapBtn {
+  background: rgba(12, 32, 51, 0.9);
+  color: var(--text);
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  font-size: 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: none;
+}
+.mapBtn:hover { background: #163654; border-color: var(--cyan); }
+
+.legend {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  gap: 15px;
+  background: rgba(7, 23, 37, 0.9);
+  border: 1px solid var(--line);
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  backdrop-filter: blur(4px);
+  z-index: 5;
+}
+
+/* Side Stack & Lists */
+.sideStack { display: grid; gap: 14px; }
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid #173149;
+}
+.row:last-child { border-bottom: 0; }
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #16364e;
+  display: grid;
+  place-items: center;
+  color: var(--cyan);
+  font-weight: 800;
+  font-size: 12px;
+  border: 1px solid rgba(55, 213, 255, 0.2);
+}
+.who { display: flex; gap: 10px; align-items: center; }
+.tiny { font-size: 11px; color: var(--muted); }
+.tag {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #10372f;
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.tag.warn { background: #3a2c0e; color: var(--amber); }
+.tag.red { background: #3b1720; color: var(--red); }
+.tag.blue { background: #0e2942; color: var(--cyan); }
+
+.sectionTitle { font-weight: 800; font-size: 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.bar { height: 8px; background: #172c40; border-radius: 99px; overflow: hidden; margin-top: 9px; }
+.fill { height: 100%; background: linear-gradient(90deg, #27b9f2, #36e0a0); border-radius: 99px; transition: width 0.4s ease; }
+.fill.danger { background: linear-gradient(90deg, #ff9f43, #ff596d); }
+
+.alert { display: flex; gap: 10px; padding: 11px 0; border-bottom: 1px solid #173149; align-items: flex-start; }
+.alert:last-child { border: 0; }
+.dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; background: var(--amber); flex: none; }
+.dot.red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+.dot.green { background: var(--green); }
+
+.bottomGrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 14px; }
+
+/* Custom Tab Content Areas */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Data Tables */
+.table-wrapper { overflow-x: auto; margin-top: 10px; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th { background: #0a1726; color: var(--muted); padding: 12px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--line); }
+td { padding: 13px 14px; border-bottom: 1px solid #132a3e; font-size: 13px; }
+tr:hover td { background: rgba(16, 40, 62, 0.4); }
+
+/* Form Elements */
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  background: #091726;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+.form-control:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 8px rgba(55, 213, 255, 0.2); }
+textarea.form-control { resize: vertical; min-height: 80px; }
+
+/* Modal Overlay */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 11, 20, 0.8);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.modal-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.modal {
+  background: linear-gradient(145deg, #0e1e31, #0a1727);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 520px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  transform: translateY(20px);
+  transition: transform 0.25s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-backdrop.open .modal { transform: translateY(0); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.modal-title { font-size: 18px; font-weight: 800; color: var(--text); }
+.modal-close { background: transparent; border: 0; color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px; box-shadow: none; }
+.modal-close:hover { color: var(--text); background: transparent; }
+
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid var(--line); padding-top: 14px; }
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.toast {
+  background: #0d2238;
+  border: 1px solid var(--cyan);
+  color: var(--text);
+  padding: 12px 18px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  animation: slideIn 0.3s forwards;
+}
+.toast.toast-danger { border-color: var(--red); background: #260d16; }
+.toast.toast-success { border-color: var(--green); background: #0a261c; }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* SOS Mode Alert Banner */
+.sos-banner {
+  background: linear-gradient(90deg, #ff596d, #b31d33);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(255, 89, 109, 0.4);
+  animation: flash 1.5s infinite alternate;
+}
+.sos-banner.active { display: flex; }
+@keyframes flash {
+  0% { opacity: 0.85; }
+  100% { opacity: 1; }
+}
+
+/* Filter pills */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-btn {
+  background: #091726;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: none;
+}
+.filter-btn.active, .filter-btn:hover { background: #132e48; color: var(--cyan); border-color: var(--cyan); }
+
+/* Responsive adjustments */
+@media(max-width: 1050px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .content { grid-template-columns: 1fr; }
+  .bottomGrid { grid-template-columns: 1fr; }
+  .side { width: 72px; padding: 20px 10px; }
+  .side .label, .side .bottom { display: none; }
+  .main { margin-left: 72px; width: calc(100% - 72px); }
+  .logo { justify-content: center; }
+  .nav a { justify-content: center; padding: 12px; }
+}
+@media(max-width: 650px) {
+  .side { display: none; }
+  .main { margin: 0; width: 100%; padding: 16px; }
+  .grid { grid-template-columns: 1fr; }
+  .top { align-items: flex-start; gap: 12px; flex-direction: column; }
+  .actions { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app">
+  <!-- Sidebar Navigation -->
+  <aside class="side">
+    <div class="logo" onclick="switchTab('mission-control')">
+      <div class="logoMark">P</div>
+      <span class="label">PolarCommand</span>
+    </div>
+    <nav class="nav">
+      <a class="active" data-tab="mission-control" onclick="switchTab('mission-control')"><span class="ico">⌂</span><span class="label">Mission Control</span></a>
+      <a data-tab="personnel" onclick="switchTab('personnel')"><span class="ico">◉</span><span class="label">Personnel</span></a>
+      <a data-tab="assets" onclick="switchTab('assets')"><span class="ico">▣</span><span class="label">Assets & Cargo</span></a>
+      <a data-tab="inventory" onclick="switchTab('inventory')"><span class="ico">◫</span><span class="label">Inventory</span></a>
+      <a data-tab="maps" onclick="switchTab('maps')"><span class="ico">⌖</span><span class="label">Maps & Geofence</span></a>
+      <a data-tab="weather" onclick="switchTab('weather')"><span class="ico">☁</span><span class="label">Weather & Risk</span></a>
+      <a data-tab="emergency" onclick="switchTab('emergency')"><span class="ico">⚠</span><span class="label">Emergency</span></a>
+      <a data-tab="records" onclick="switchTab('records')"><span class="ico">▤</span><span class="label">Mission Records</span></a>
+    </nav>
+    <div class="bottom">
+      <div class="tiny">SYSTEM STATUS</div>
+      <div style="margin-top:5px" id="systemStatusPill"><span class="online">● Offline-ready</span></div>
+      <div class="tiny" style="margin-top:5px" id="lastSyncTime">Last sync: 18:42 IST</div>
+    </div>
+  </aside>
+
+  <!-- Main Content View -->
+  <main class="main">
+
+    <!-- Top Header -->
+    <header class="top">
+      <div>
+        <div class="eyebrow" id="pageEyebrow">NCPOR • POLAR EXPEDITION</div>
+        <div class="title" id="pageTitle">Mission Control Center</div>
+        <div class="sub" id="pageSub">Arctic Expedition AX-26 · Field Camp Delta</div>
+      </div>
+      <div class="actions">
+        <span class="pill" id="btnToggleMode" onclick="toggleSystemMode()"><span class="online" id="modeDot">●</span> <span id="modeText">Local Mode</span></span>
+        <button onclick="openModal('modalLogActivity')">＋ Log Activity</button>
+        <button class="btn-danger" id="btnHeaderSOS" onclick="triggerSOSModal()">SOS</button>
+      </div>
+    </header>
+
+    <!-- Emergency Active Banner -->
+    <div class="sos-banner" id="sosBanner">
+      <div>🚨 EMERGENCY SOS DISTRESS BROADCAST IS ACTIVE</div>
+      <button class="btn-secondary" style="color:white;border-color:white;" onclick="cancelSOS()">CANCEL DISTRESS ALARM</button>
+    </div>
+
+    <!-- TAB 1: MISSION CONTROL (DASHBOARD) -->
+    <div class="tab-content active" id="tab-mission-control">
+      <!-- 4 Stat Cards -->
+      <section class="grid">
+        <div class="card stat clickable" onclick="switchTab('personnel')">
+          <div class="statTop"><span>Personnel</span><span>◉</span></div>
+          <div class="num" id="statPersonnel">24 / 26</div>
+          <div class="good" id="statPersonnelSub">● 24 active · 2 resting</div>
+        </div>
+        <div class="card stat clickable" onclick="switchTab('assets')">
+          <div class="statTop"><span>Tracked Assets</span><span>▣</span></div>
+          <div class="num" id="statAssets">148</div>
+          <div class="good" id="statAssetsSub">● 100% accounted</div>
+        </div>
+        <div class="card stat clickable" onclick="switchTab('inventory')">
+          <div class="statTop"><span>Inventory Health</span><span>◫</span></div>
+          <div class="num" id="statInventory">86%</div>
+          <div class="warn" id="statInventorySub">▲ 3 low-stock items</div>
+        </div>
+        <div class="card stat clickable" onclick="switchTab('weather')">
+          <div class="statTop"><span>Mission Risk</span><span>⚠</span></div>
+          <div class="num warn" id="statRisk">Moderate</div>
+          <div class="muted" id="statRiskSub">Weather window: 04h 20m</div>
+        </div>
+      </section>
+
+      <!-- Map & Side Stack -->
+      <section class="content">
+        <!-- Map Card -->
+        <div class="card map" id="dashMapContainer">
+          <div class="radar-sweep"></div>
+          <div class="mapLabel">
+            <b>LIVE EXPEDITION MAP</b>
+            <div class="tiny">Offline map cache · 1.2 km view</div>
+          </div>
+          <div class="mapControls">
+            <button class="mapBtn" onclick="toggleMapSim()">⚡ <span id="dashSimText">Simulate Ping</span></button>
+            <button class="mapBtn" onclick="switchTab('maps')">⌖ Expand Map</button>
+          </div>
+          
+          <div class="ice"></div>
+          
+          <!-- Dashed Geofence Zone -->
+          <div class="zone-circle" id="dashGeofenceCircle" style="width:200px; height:130px; left:52%; top:42%;"></div>
+          
+          <!-- SVG Route Line -->
+          <svg class="route-svg">
+            <path d="M 160 210 Q 280 180, 390 120 T 450 250" fill="none" stroke="#37d5ff" stroke-width="2" stroke-dasharray="4,4" />
+          </svg>
+
+          <!-- Interactive Pins rendered dynamically -->
+          <div id="dashPinsContainer"></div>
+
+          <div class="legend">
+            <span>● Personnel</span>
+            <span style="color:#36e0a0">● Safe zone</span>
+            <span style="color:#ffc857">● Asset</span>
+            <span>━ Planned route</span>
+          </div>
+        </div>
+
+        <!-- Side Stack (Safety + Weather Engine) -->
+        <div class="sideStack">
+          <div class="card">
+            <div class="sectionTitle">
+              <span>Safety & Geofence</span>
+              <button class="mapBtn" style="padding:2px 8px;font-size:10px" onclick="switchTab('maps')">Configure</button>
+            </div>
+            <div class="row">
+              <div><b>Camp Delta</b><div class="tiny">Primary safe zone</div></div>
+              <span class="tag" id="dashCampTag">SECURE</span>
+            </div>
+            <div class="row">
+              <div><b>Team Alpha</b><div class="tiny">Last heartbeat · <span id="dashTeamAlphaTime">18:41</span></div></div>
+              <span class="tag" id="dashAlphaTag">ONLINE</span>
+            </div>
+            <div class="row">
+              <div><b>Zone boundary</b><div class="tiny">No violations detected</div></div>
+              <span class="tag" id="dashZoneTag">CLEAR</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="sectionTitle">
+              <span>Weather & Risk Engine</span>
+              <button class="mapBtn" style="padding:2px 8px;font-size:10px" onclick="switchTab('weather')">Adjust Telemetry</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin:12px 0">
+              <div>
+                <div class="num" style="font-size:24px" id="dashTemp">-18°C</div>
+                <div class="tiny">Surface temperature</div>
+              </div>
+              <div style="text-align:right">
+                <div class="num" style="font-size:24px" id="dashWind">28 km/h</div>
+                <div class="tiny">Wind speed</div>
+              </div>
+            </div>
+            <div class="bar"><div class="fill" id="dashRiskFill" style="width:62%"></div></div>
+            <div class="tiny" style="margin-top:7px" id="dashRiskText">Risk index 62/100 · monitor conditions</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom 3 Cards -->
+      <section class="bottomGrid">
+        <div class="card">
+          <div class="sectionTitle">
+            <span>Inventory Alerts</span>
+            <button class="mapBtn" style="padding:2px 8px;font-size:10px" onclick="switchTab('inventory')">View All</button>
+          </div>
+          <div id="dashInventoryAlerts"></div>
+        </div>
+
+        <div class="card">
+          <div class="sectionTitle">
+            <span>Personnel Heartbeat</span>
+            <button class="mapBtn" style="padding:2px 8px;font-size:10px" onclick="pingAllHeartbeats()">Ping All</button>
+          </div>
+          <div id="dashPersonnelHeartbeats"></div>
+        </div>
+
+        <div class="card">
+          <div class="sectionTitle">
+            <span>Recent Mission Records</span>
+            <button class="mapBtn" style="padding:2px 8px;font-size:10px" onclick="switchTab('records')">View Logs</button>
+          </div>
+          <div id="dashRecentRecords"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: PERSONNEL -->
+    <div class="tab-content" id="tab-personnel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="filter-bar" style="margin-bottom:0">
+          <button class="filter-btn active" onclick="filterPersonnel('all', this)">All Members</button>
+          <button class="filter-btn" onclick="filterPersonnel('Team Alpha', this)">Team Alpha</button>
+          <button class="filter-btn" onclick="filterPersonnel('Camp Delta', this)">Camp Delta</button>
+          <button class="filter-btn" onclick="filterPersonnel('active', this)">Active</button>
+          <button class="filter-btn" onclick="filterPersonnel('resting', this)">Resting</button>
+        </div>
+        <button onclick="openModal('modalAddPersonnel')">＋ Add Personnel</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Role & Team</th>
+                <th>Location Coords</th>
+                <th>Heart Rate</th>
+                <th>Comms / Battery</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="personnelTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: ASSETS & CARGO -->
+    <div class="tab-content" id="tab-assets">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="filter-bar" style="margin-bottom:0">
+          <button class="filter-btn active" onclick="filterAssets('all', this)">All Assets</button>
+          <button class="filter-btn" onclick="filterAssets('Vehicles', this)">Vehicles</button>
+          <button class="filter-btn" onclick="filterAssets('Cargo', this)">Cargo</button>
+          <button class="filter-btn" onclick="filterAssets('Sensors', this)">Sensors</button>
+          <button class="filter-btn" onclick="filterAssets('Equipment', this)">Equipment</button>
+        </div>
+        <div>
+          <button class="btn-secondary" onclick="simulateRFIDScan()">📡 Scan Tag</button>
+          <button onclick="openModal('modalAddAsset')">＋ Add Asset</button>
+        </div>
+      </div>
+
+      <div class="grid" id="assetGridContainer" style="grid-template-columns: repeat(3, 1fr);"></div>
+    </div>
+
+    <!-- TAB 4: INVENTORY -->
+    <div class="tab-content" id="tab-inventory">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div class="filter-bar" style="margin-bottom:0">
+          <button class="filter-btn active" onclick="filterInventory('all', this)">All Inventory</button>
+          <button class="filter-btn" onclick="filterInventory('Medical', this)">Medical</button>
+          <button class="filter-btn" onclick="filterInventory('Fuel', this)">Fuel</button>
+          <button class="filter-btn" onclick="filterInventory('Power', this)">Power & Batteries</button>
+          <button class="filter-btn" onclick="filterInventory('Food', this)">Food & Rations</button>
+        </div>
+        <div>
+          <input type="text" class="form-control" placeholder="🔍 Search item..." id="inventorySearch" onkeyup="searchInventory()" style="width:200px;display:inline-block;padding:7px 12px;margin-right:8px;">
+          <button onclick="openModal('modalAddInventory')">＋ New Stock Item</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Current Stock</th>
+                <th>Stock Bar</th>
+                <th>Reorder Limit</th>
+                <th>Health Status</th>
+                <th>Quick Adjust</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: MAPS & GEOFENCE -->
+    <div class="tab-content" id="tab-maps">
+      <div class="grid" style="grid-template-columns: 2.2fr 1fr;">
+        <div class="card map" style="height: 520px;" id="fullMapContainer">
+          <div class="radar-sweep"></div>
+          <div class="mapLabel">
+            <b>EXPEDITION INTERACTIVE POLAR RADAR</b>
+            <div class="tiny">GPS Telemetry Base Station Delta</div>
+          </div>
+
+          <div class="mapControls">
+            <button class="mapBtn" onclick="toggleRadarSweep()">📡 Toggle Sweep</button>
+            <button class="mapBtn" onclick="openAddWaypointModal()">📍 Add Marker</button>
+          </div>
+
+          <div class="ice" style="width:700px; height:380px;"></div>
+          
+          <div class="zone-circle" id="fullGeofenceCircle" style="width:300px; height:200px; left:50%; top:50%;"></div>
+          
+          <div id="fullPinsContainer"></div>
+
+          <div class="legend">
+            <span>● Field Member</span>
+            <span style="color:#36e0a0">● Safe Zone</span>
+            <span style="color:#ffc857">● Cargo Asset</span>
+            <span style="color:#ff596d">● Distress Pin</span>
+          </div>
+        </div>
+
+        <div class="sideStack">
+          <div class="card">
+            <div class="sectionTitle">Geofence Perimeter Controls</div>
+            <div class="form-group">
+              <label>Safe Perimeter Radius: <b id="geofenceRadiusVal">1.5 km</b></label>
+              <input type="range" min="0.5" max="4.0" step="0.1" value="1.5" class="form-control" id="geofenceSlider" oninput="updateGeofenceRadius(this.value)">
+            </div>
+            <div class="row">
+              <div><b>Zone Status</b><div class="tiny">Perimeter Check</div></div>
+              <span class="tag" id="geofenceStatusTag">SECURE</span>
+            </div>
+            <div class="row">
+              <div><b>Active Radar Pings</b><div class="tiny">Tracked units</div></div>
+              <span class="tag blue" id="activePingsCount">6 Units</span>
+            </div>
+          </div>
+
+          <div class="card" style="flex:1;">
+            <div class="sectionTitle">Tracked Waypoints</div>
+            <div id="waypointsList" style="max-height:220px;overflow-y:auto;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: WEATHER & RISK ENGINE -->
+    <div class="tab-content" id="tab-weather">
+      <div class="grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:14px;">
+        <div class="card">
+          <div class="statTop"><span>Surface Temperature</span><span>☁</span></div>
+          <div class="num" id="weatherTempDisplay">-18°C</div>
+          <div class="tiny" id="weatherTempSub">Wind chill feels like -29°C</div>
+        </div>
+        <div class="card">
+          <div class="statTop"><span>Wind Speed</span><span>💨</span></div>
+          <div class="num" id="weatherWindDisplay">28 km/h</div>
+          <div class="tiny" id="weatherWindSub">Direction: NNW · Gusts to 38 km/h</div>
+        </div>
+        <div class="card">
+          <div class="statTop"><span>Calculated Risk Score</span><span>⚠</span></div>
+          <div class="num warn" id="weatherRiskDisplay">62 / 100</div>
+          <div class="good" id="weatherRiskSub">Moderate Surface Risk</div>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1.5fr 1fr;">
+        <div class="card">
+          <div class="sectionTitle">Interactive Telemetry Controls</div>
+          <p class="tiny" style="margin-bottom:16px">Adjust weather conditions below to dynamically test mission risk calculations:</p>
+          
+          <div class="form-group">
+            <label>Temperature (-40°C to 0°C): <b id="lblTempSlider">-18°C</b></label>
+            <input type="range" min="-40" max="0" value="-18" class="form-control" id="sliderTemp" oninput="onWeatherChange()">
+          </div>
+
+          <div class="form-group">
+            <label>Wind Speed (0 to 90 km/h): <b id="lblWindSlider">28 km/h</b></label>
+            <input type="range" min="0" max="90" value="28" class="form-control" id="sliderWind" oninput="onWeatherChange()">
+          </div>
+
+          <div style="display:flex;gap:12px;margin-top:18px;">
+            <button class="btn-secondary" onclick="simulateBlizzard()">🌨 Trigger Blizzard Preset</button>
+            <button class="btn-secondary" onclick="resetWeather()">☀️ Clear Weather Preset</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sectionTitle">Risk Recommendation Engine</div>
+          <div id="riskRecommendationBox" style="padding:12px;background:#091726;border-radius:10px;border:1px solid var(--line);margin-top:10px;">
+            <div style="font-weight:700;color:var(--cyan);margin-bottom:6px" id="recTitle">Standard Operations Permitted</div>
+            <div class="tiny" id="recDetail">Surface travel is viable with thermal gear. Maintain 30-minute radio heartbeats with Base Camp Delta.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: EMERGENCY & SOS -->
+    <div class="tab-content" id="tab-emergency">
+      <div class="card" style="border-color: var(--red); background: linear-gradient(145deg, #1f0b12, #0d1a29); margin-bottom: 20px;">
+        <div class="sectionTitle" style="color:var(--red);font-size:20px;">
+          <span>🚨 NCPOR EMERGENCY COMMAND DISPATCH</span>
+        </div>
+        <p style="color:var(--muted);margin-bottom:16px;">
+          Activating Distress Broadcast sends immediate priority satellite alerts to NCPOR Base Headquarters and triggers local camp alarm beacons.
+        </p>
+
+        <div style="display:flex;gap:14px;align-items:center;">
+          <button class="btn-danger" style="font-size:16px;padding:14px 28px;" onclick="triggerSOSModal()">
+            🔥 ACTIVATE DISTRESS BROADCAST
+          </button>
+          <button class="btn-secondary" onclick="cancelSOS()">Reset SOS Status</button>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="card">
+          <div class="sectionTitle">Emergency Checklist Protocol</div>
+          <div class="row">
+            <div><b>1. Satellite Beacon Signal</b><div class="tiny">Direct link to NCPOR HQ</div></div>
+            <span class="tag" id="check1Tag">READY</span>
+          </div>
+          <div class="row">
+            <div><b>2. Emergency Power Reserves</b><div class="tiny">Generator backup active</div></div>
+            <span class="tag" id="check2Tag">ONLINE</span>
+          </div>
+          <div class="row">
+            <div><b>3. Snowcat Evacuation Rover</b><div class="tiny">Hangar Standby Mode</div></div>
+            <span class="tag" id="check3Tag">STANDBY</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sectionTitle">Distress Incident Log</div>
+          <div id="emergencyIncidentLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 8: MISSION RECORDS -->
+    <div class="tab-content" id="tab-records">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <input type="text" class="form-control" placeholder="🔍 Search mission logs..." id="logSearch" onkeyup="searchLogs()" style="width:250px;">
+        <div style="display:flex;gap:10px;">
+          <button class="btn-secondary" onclick="exportLogsCSV()">📥 Export CSV</button>
+          <button class="btn-secondary" onclick="exportLogsJSON()">📥 Export JSON</button>
+          <button onclick="openModal('modalLogActivity')">＋ New Log Entry</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Category</th>
+                <th>Title / Activity</th>
+                <th>Details</th>
+                <th>Operator</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="logsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL 1: LOG ACTIVITY -->
+<div class="modal-backdrop" id="modalLogActivity">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">＋ Log New Activity</div>
+      <button class="modal-close" onclick="closeModal('modalLogActivity')">✕</button>
+    </div>
+    <form onsubmit="handleSaveLog(event)">
+      <div class="form-group">
+        <label>Activity Title</label>
+        <input type="text" class="form-control" id="logTitle" required placeholder="e.g. Scanned Ice Core Samples">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select class="form-control" id="logCategory">
+          <option value="Asset">Asset Scanning</option>
+          <option value="Navigation">Navigation & Route</option>
+          <option value="Inventory">Inventory Adjustment</option>
+          <option value="Personnel">Personnel Field Duty</option>
+          <option value="Weather">Weather Telemetry</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Operator Initials</label>
+        <input type="text" class="form-control" id="logOperator" required placeholder="KS" maxlength="4">
+      </div>
+      <div class="form-group">
+        <label>Activity Details</label>
+        <textarea class="form-control" id="logDetail" placeholder="Enter specific field notes or sensor observations..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalLogActivity')">Cancel</button>
+        <button type="submit">Save Activity Log</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 2: SOS CONFIRMATION -->
+<div class="modal-backdrop" id="modalSOS">
+  <div class="modal" style="border-color:var(--red);">
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--red);">🚨 CONFIRM EMERGENCY SOS BROADCAST</div>
+      <button class="modal-close" onclick="closeModal('modalSOS')">✕</button>
+    </div>
+    <div style="margin-bottom:20px;line-height:1.6;">
+      <p style="margin-bottom:10px;">Are you sure you want to activate the global expedition distress signal?</p>
+      <ul style="padding-left:20px;color:var(--muted);font-size:13px;">
+        <li>Notifies NCPOR HQ Command Emergency Center via Satellite.</li>
+        <li>Alerts all field personnel radios in 50 km radius.</li>
+        <li>Deploys automated locator beacon.</li>
+      </ul>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" onclick="closeModal('modalSOS')">Cancel</button>
+      <button type="button" class="btn-danger" onclick="confirmSOSBroadcast()">BROADCAST EMERGENCY ALARM</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 3: ADD PERSONNEL -->
+<div class="modal-backdrop" id="modalAddPersonnel">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">＋ Add Field Personnel</div>
+      <button class="modal-close" onclick="closeModal('modalAddPersonnel')">✕</button>
+    </div>
+    <form onsubmit="handleSavePersonnel(event)">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" class="form-control" id="pName" required placeholder="e.g. Dr. Alex Vance">
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <input type="text" class="form-control" id="pRole" required placeholder="e.g. Glaciologist">
+      </div>
+      <div class="form-group">
+        <label>Assigned Station / Team</label>
+        <select class="form-control" id="pTeam">
+          <option value="Team Alpha">Team Alpha</option>
+          <option value="Camp Delta">Camp Delta</option>
+          <option value="Team Bravo">Team Bravo</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Location Coordinates</label>
+        <input type="text" class="form-control" id="pCoords" value="78.22°N, 15.65°E">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalAddPersonnel')">Cancel</button>
+        <button type="submit">Add Member</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 4: ADD ASSET -->
+<div class="modal-backdrop" id="modalAddAsset">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">＋ Add Expedition Asset</div>
+      <button class="modal-close" onclick="closeModal('modalAddAsset')">✕</button>
+    </div>
+    <form onsubmit="handleSaveAsset(event)">
+      <div class="form-group">
+        <label>Asset Name</label>
+        <input type="text" class="form-control" id="astName" required placeholder="e.g. Portable Solar Array #2">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select class="form-control" id="astCategory">
+          <option value="Vehicles">Vehicles</option>
+          <option value="Cargo">Cargo</option>
+          <option value="Sensors">Sensors</option>
+          <option value="Equipment">Equipment</option>
+          <option value="Communication">Communication</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" class="form-control" id="astLocation" required placeholder="e.g. Hangar Delta">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalAddAsset')">Cancel</button>
+        <button type="submit">Save Asset</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 5: ADD INVENTORY -->
+<div class="modal-backdrop" id="modalAddInventory">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">＋ Add Inventory Item</div>
+      <button class="modal-close" onclick="closeModal('modalAddInventory')">✕</button>
+    </div>
+    <form onsubmit="handleSaveInventory(event)">
+      <div class="form-group">
+        <label>Item Name</label>
+        <input type="text" class="form-control" id="invName" required placeholder="e.g. Thermal Gloves">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select class="form-control" id="invCategory">
+          <option value="Medical">Medical</option>
+          <option value="Fuel">Fuel</option>
+          <option value="Power">Power & Batteries</option>
+          <option value="Food">Food & Rations</option>
+          <option value="Gear">Gear & Equipment</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;gap:10px;">
+        <div style="flex:1">
+          <label>Quantity Stock</label>
+          <input type="number" class="form-control" id="invStock" required value="50">
+        </div>
+        <div style="flex:1">
+          <label>Unit</label>
+          <input type="text" class="form-control" id="invUnit" required value="pairs">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Reorder Limit Threshold</label>
+        <input type="number" class="form-control" id="invThreshold" required value="15">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalAddInventory')">Cancel</button>
+        <button type="submit">Save Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JAVASCRIPT APPLICATION LOGIC -->
+<script>
+// INITIAL APP STATE
+const DEFAULT_STATE = {
+  mode: 'offline', // 'offline' or 'online'
+  activeTab: 'mission-control',
+  personnel: [
+    { id: 'P-01', name: 'Karthikeyan S.', role: 'Field Researcher', team: 'Team Alpha', location: '78.21°N, 15.63°E', status: 'active', heartRate: 74, battery: 92, lastHeartbeat: '18:41' },
+    { id: 'P-02', name: 'Gomethagan S.', role: 'Logistics Officer', team: 'Camp Delta', location: '78.22°N, 15.65°E', status: 'active', heartRate: 68, battery: 88, lastHeartbeat: '18:40' },
+    { id: 'P-03', name: 'Dr. Evelyn Reed', role: 'Chief Meteorologist', team: 'Camp Delta', location: '78.22°N, 15.65°E', status: 'active', heartRate: 71, battery: 95, lastHeartbeat: '18:39' },
+    { id: 'P-04', name: 'Markus Vance', role: 'Drilling Specialist', team: 'Team Alpha', location: '78.20°N, 15.58°E', status: 'resting', heartRate: 62, battery: 76, lastHeartbeat: '18:35' },
+    { id: 'P-05', name: 'Aria Thorne', role: 'Comms Specialist', team: 'Camp Delta', location: '78.22°N, 15.65°E', status: 'active', heartRate: 75, battery: 84, lastHeartbeat: '18:38' }
+  ],
+  assets: [
+    { id: 'A-01', name: 'Snowcat Rover Alpha', category: 'Vehicles', location: 'Camp Delta Hangar', status: 'optimal', battery: 98, lastScan: '18:30' },
+    { id: 'A-02', name: 'Cargo Module C-07', category: 'Cargo', location: '78.23°N, 15.70°E', status: 'fair', battery: 45, lastScan: '18:38' },
+    { id: 'A-03', name: 'Weather Radar Array', category: 'Sensors', location: 'Ridge Station 2', status: 'optimal', battery: 100, lastScan: '18:00' },
+    { id: 'A-04', name: 'Core Drill Rig #3', category: 'Equipment', location: 'Drill Hole Delta', status: 'fair', battery: 72, lastScan: '18:15' },
+    { id: 'A-05', name: 'SatCom Dish B', category: 'Communication', location: 'Camp Delta', status: 'optimal', battery: 90, lastScan: '18:25' }
+  ],
+  inventory: [
+    { id: 'INV-01', name: 'Medical oxygen', category: 'Medical', stock: 12, unit: 'units', threshold: 15, status: 'low' },
+    { id: 'INV-02', name: 'Diesel fuel', category: 'Fuel', stock: 180, unit: 'liters', threshold: 500, status: 'low' },
+    { id: 'INV-03', name: 'Emergency batteries', category: 'Power', stock: 7, unit: 'units', threshold: 20, status: 'critical' },
+    { id: 'INV-04', name: 'Rations Pack Type-B', category: 'Food', stock: 450, unit: 'meals', threshold: 100, status: 'ok' },
+    { id: 'INV-05', name: 'Thermal Survival Suits', category: 'Gear', stock: 32, unit: 'sets', threshold: 25, status: 'ok' }
+  ],
+  weather: {
+    temp: -18,
+    wind: 28,
+    riskIndex: 62
+  },
+  logs: [
+    { id: 'LOG-101', timestamp: '18:38', title: 'Asset C-07 scanned', detail: 'QR tag scanned & position verified via telemetry.', operator: 'GS', category: 'Asset', tag: 'LOCKED' },
+    { id: 'LOG-102', timestamp: '18:31', title: 'Route checkpoint saved', detail: 'Waypoints Alpha-2 saved to local database.', operator: 'KS', category: 'Navigation', tag: 'LOCKED' },
+    { id: 'LOG-103', timestamp: '18:22', title: 'Inventory adjustment', detail: 'Issued 2 Thermal Suits to Team Alpha.', operator: 'KS', category: 'Inventory', tag: 'LOCKED' }
+  ],
+  mapPins: [
+    { id: 'PIN-1', name: 'Team Alpha', type: 'personnel', x: 29, y: 52, color: 'cyan' },
+    { id: 'PIN-2', name: 'Camp Delta', type: 'zone', x: 52, y: 42, color: 'green' },
+    { id: 'PIN-3', name: 'Cargo-07', type: 'asset', x: 74, y: 67, color: 'amber' }
+  ],
+  geofenceRadius: 1.5,
+  sosActive: false,
+  simulating: false
+};
+
+// LOAD OR SAVE STATE IN LOCAL STORAGE
+let state = JSON.parse(localStorage.getItem('POLAR_COMMAND_STATE')) || DEFAULT_STATE;
+
+const broadcastChannel = new BroadcastChannel('polar_command_sync');
+
+function saveState(broadcastMsg = null, alertType = 'normal') {
+  localStorage.setItem('POLAR_COMMAND_STATE', JSON.stringify(state));
+  renderAllViews();
+  if (broadcastMsg) {
+    broadcastChannel.postMessage({
+      type: 'STATE_UPDATED',
+      msg: broadcastMsg,
+      alertType: alertType
+    });
+  }
+}
+
+// LISTEN TO REAL-TIME BROADCAST & STORAGE UPDATES (From Mobile or other tabs)
+broadcastChannel.onmessage = (event) => {
+  const data = event.data;
+  if (data && data.type === 'STATE_UPDATED') {
+    const saved = localStorage.getItem('POLAR_COMMAND_STATE');
+    if (saved) state = JSON.parse(saved);
+    renderAllViews();
+    if (data.msg) {
+      showToast(data.msg, data.alertType || 'normal');
+    }
+  }
+};
+
+window.addEventListener('storage', (e) => {
+  if (e.key === 'POLAR_COMMAND_STATE') {
+    const saved = localStorage.getItem('POLAR_COMMAND_STATE');
+    if (saved) state = JSON.parse(saved);
+    renderAllViews();
+  }
+});
+
+// TOAST SYSTEM
+function showToast(message, type = 'normal') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type === 'danger' ? 'toast-danger' : type === 'success' ? 'toast-success' : ''}`;
+  toast.innerHTML = `<span>ℹ</span> <div>${message}</div>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+// TAB NAVIGATION
+function switchTab(tabId) {
+  state.activeTab = tabId;
+  
+  // Update sidebar active state
+  document.querySelectorAll('.nav a').forEach(el => {
+    if (el.getAttribute('data-tab') === tabId) {
+      el.classList.add('active');
+    } else {
+      el.classList.remove('active');
+    }
+  });
+
+  // Update visible tab content
+  document.querySelectorAll('.tab-content').forEach(el => {
+    el.classList.remove('active');
+  });
+  const activeEl = document.getElementById(`tab-${tabId}`);
+  if (activeEl) activeEl.classList.add('active');
+
+  // Update Header titles
+  const titles = {
+    'mission-control': { title: 'Mission Control Center', eyebrow: 'NCPOR • POLAR EXPEDITION', sub: 'Arctic Expedition AX-26 · Field Camp Delta' },
+    'personnel': { title: 'Field Personnel Roster', eyebrow: 'PERSONNEL & VITALS TRACKER', sub: '24 Active Members · 2 Base Stations' },
+    'assets': { title: 'Expedition Assets & Cargo', eyebrow: 'ASSET & TELEMETRY TRACKER', sub: '148 Tracked Equipment & Cargo Modules' },
+    'inventory': { title: 'Base Inventory Management', eyebrow: 'SUPPLY & LIFE SUPPORT', sub: 'Stock Telemetry & Reorder Alerts' },
+    'maps': { title: 'Interactive Polar Map & Geofence', eyebrow: 'GEOSPACE COMMAND', sub: 'Real-time GPS Radar & Geofence Boundary' },
+    'weather': { title: 'Weather & Risk Engine', eyebrow: 'CLIMATE TELEMETRY', sub: 'Sub-Zero Meteorological Analysis' },
+    'emergency': { title: 'Emergency SOS & Dispatch', eyebrow: 'DISTRESS COMMAND', sub: 'Satellite Beacon & Evacuation Protocols' },
+    'records': { title: 'Mission Activity Log Records', eyebrow: 'EXPEDITION LOGS', sub: 'Audit Trail & Operation Records' }
+  };
+
+  if (titles[tabId]) {
+    document.getElementById('pageTitle').innerText = titles[tabId].title;
+    document.getElementById('pageEyebrow').innerText = titles[tabId].eyebrow;
+    document.getElementById('pageSub').innerText = titles[tabId].sub;
+  }
+
+  saveState();
+}
+
+// SYSTEM MODE TOGGLE (Local / Cloud)
+function toggleSystemMode() {
+  state.mode = state.mode === 'offline' ? 'online' : 'offline';
+  const dot = document.getElementById('modeDot');
+  const text = document.getElementById('modeText');
+  const statusPill = document.getElementById('systemStatusPill');
+
+  if (state.mode === 'online') {
+    dot.className = 'online';
+    text.innerText = 'Cloud Sync Mode';
+    statusPill.innerHTML = '<span class="online">● Cloud Synced</span>';
+    showToast('Switched to Cloud Sync Mode', 'success');
+  } else {
+    dot.className = 'online';
+    text.innerText = 'Local Mode';
+    statusPill.innerHTML = '<span class="online">● Offline-ready</span>';
+    showToast('Switched to Local Offline Mode');
+  }
+  saveState();
+}
+
+// RENDERERS FOR ALL SECTIONS
+function renderAllViews() {
+  renderMissionControl();
+  renderPersonnel();
+  renderAssets();
+  renderInventory();
+  renderMaps();
+  renderWeather();
+  renderEmergency();
+  renderRecords();
+
+  // Update SOS Banner
+  const sosBanner = document.getElementById('sosBanner');
+  if (state.sosActive) {
+    sosBanner.classList.add('active');
+  } else {
+    sosBanner.classList.remove('active');
+  }
+}
+
+// 1. MISSION CONTROL RENDERER
+function renderMissionControl() {
+  // Stat totals
+  const totalP = state.personnel.length;
+  const activeP = state.personnel.filter(p => p.status === 'active').length;
+  document.getElementById('statPersonnel').innerText = `${activeP} / ${totalP + 2}`;
+  document.getElementById('statPersonnelSub').innerText = `● ${activeP} active · ${totalP - activeP + 2} resting`;
+
+  document.getElementById('statAssets').innerText = state.assets.length * 28 + 8;
+
+  const lowInv = state.inventory.filter(i => i.stock <= i.threshold).length;
+  document.getElementById('statInventory').innerText = lowInv > 0 ? `${100 - lowInv * 12}%` : '100%';
+  document.getElementById('statInventorySub').innerText = lowInv > 0 ? `▲ ${lowInv} low-stock items` : '● Optimal stock levels';
+
+  document.getElementById('statRisk').innerText = state.weather.riskIndex > 70 ? 'High' : state.weather.riskIndex > 50 ? 'Moderate' : 'Low';
+
+  // Map Pins render
+  const mapPinsContainer = document.getElementById('dashPinsContainer');
+  mapPinsContainer.innerHTML = '';
+  state.mapPins.forEach(pin => {
+    const el = document.createElement('div');
+    el.className = `pin pin-${pin.color}`;
+    el.style.left = `${pin.x}%`;
+    el.style.top = `${pin.y}%`;
+    el.onclick = () => showToast(`Map Marker: ${pin.name}`);
+    
+    const lbl = document.createElement('div');
+    lbl.className = 'pin-label';
+    lbl.style.left = `${pin.x}%`;
+    lbl.style.top = `${pin.y}%`;
+    lbl.innerText = pin.name;
+
+    mapPinsContainer.appendChild(el);
+    mapPinsContainer.appendChild(lbl);
+  });
+
+  // Weather Risk Bar
+  document.getElementById('dashTemp').innerText = `${state.weather.temp}°C`;
+  document.getElementById('dashWind').innerText = `${state.weather.wind} km/h`;
+  const riskFill = document.getElementById('dashRiskFill');
+  riskFill.style.width = `${state.weather.riskIndex}%`;
+  if (state.weather.riskIndex > 70) riskFill.classList.add('danger');
+  else riskFill.classList.remove('danger');
+  document.getElementById('dashRiskText').innerText = `Risk index ${state.weather.riskIndex}/100 · ${state.weather.riskIndex > 70 ? 'Hazardous Conditions' : 'Monitor conditions'}`;
+
+  // Inventory Alerts list
+  const invAlerts = document.getElementById('dashInventoryAlerts');
+  invAlerts.innerHTML = '';
+  const alertItems = state.inventory.filter(i => i.stock <= i.threshold);
+  if (alertItems.length === 0) {
+    invAlerts.innerHTML = '<div class="tiny" style="padding:10px 0">All inventory items above safety thresholds.</div>';
+  } else {
+    alertItems.forEach(item => {
+      const isCrit = item.stock <= item.threshold / 2;
+      invAlerts.innerHTML += `
+        <div class="alert">
+          <span class="dot ${isCrit ? 'red' : ''}"></span>
+          <div>
+            <b>${item.name}</b>
+            <div class="tiny">${item.stock} ${item.unit} remaining · threshold ${item.threshold}</div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  // Personnel Heartbeat list
+  const heartbeats = document.getElementById('dashPersonnelHeartbeats');
+  heartbeats.innerHTML = '';
+  state.personnel.slice(0, 3).forEach(p => {
+    const initials = p.name.split(' ').map(n=>n[0]).join('');
+    heartbeats.innerHTML += `
+      <div class="row">
+        <div class="who">
+          <div class="avatar">${initials}</div>
+          <div><b>${p.name}</b><div class="tiny">${p.role} · ${p.team}</div></div>
+        </div>
+        <span class="tag ${p.status === 'resting' ? 'warn' : ''}">${p.lastHeartbeat}</span>
+      </div>
+    `;
+  });
+
+  // Recent Records list
+  const recentRecords = document.getElementById('dashRecentRecords');
+  recentRecords.innerHTML = '';
+  state.logs.slice(0, 3).forEach(l => {
+    recentRecords.innerHTML += `
+      <div class="row">
+        <div><b>${l.title}</b><div class="tiny">${l.timestamp} · ${l.detail}</div></div>
+        <span class="tag">${l.tag || 'LOCKED'}</span>
+      </div>
+    `;
+  });
+}
+
+// 2. PERSONNEL RENDERER
+function renderPersonnel(filter = 'all') {
+  const tbody = document.getElementById('personnelTableBody');
+  tbody.innerHTML = '';
+  
+  let list = state.personnel;
+  if (filter !== 'all') {
+    list = list.filter(p => p.team === filter || p.status === filter);
+  }
+
+  list.forEach(p => {
+    const initials = p.name.split(' ').map(n=>n[0]).join('');
+    tbody.innerHTML += `
+      <tr>
+        <td>
+          <div class="who">
+            <div class="avatar">${initials}</div>
+            <div><b>${p.name}</b><div class="tiny">ID: ${p.id}</div></div>
+          </div>
+        </td>
+        <td>${p.role}<br><span class="tiny">${p.team}</span></td>
+        <td style="font-family:var(--font-mono)">${p.location}</td>
+        <td><span style="color:var(--green)">♥ ${p.heartRate} bpm</span></td>
+        <td>⚡ ${p.battery}%</td>
+        <td><span class="tag ${p.status === 'resting' ? 'warn' : p.status === 'sos' ? 'red' : ''}">${p.status.toUpperCase()}</span></td>
+        <td>
+          <button class="mapBtn" onclick="togglePersonnelStatus('${p.id}')">Toggle Status</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function filterPersonnel(filter, btn) {
+  document.querySelectorAll('#tab-personnel .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPersonnel(filter);
+}
+
+function togglePersonnelStatus(id) {
+  const p = state.personnel.find(x => x.id === id);
+  if (p) {
+    p.status = p.status === 'active' ? 'resting' : 'active';
+    p.lastHeartbeat = 'Just now';
+    showToast(`Updated status for ${p.name}`);
+    saveState();
+  }
+}
+
+function pingAllHeartbeats() {
+  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  state.personnel.forEach(p => {
+    p.lastHeartbeat = now;
+    p.heartRate = 65 + Math.floor(Math.random() * 20);
+  });
+  showToast('Refreshed heartbeat pings for all field members', 'success');
+  saveState();
+}
+
+// 3. ASSETS RENDERER
+function renderAssets(filter = 'all') {
+  const container = document.getElementById('assetGridContainer');
+  container.innerHTML = '';
+
+  let list = state.assets;
+  if (filter !== 'all') {
+    list = list.filter(a => a.category === filter);
+  }
+
+  list.forEach(a => {
+    container.innerHTML += `
+      <div class="card">
+        <div class="statTop">
+          <span>${a.category}</span>
+          <span class="tag ${a.status === 'optimal' ? '' : a.status === 'fair' ? 'warn' : 'red'}">${a.status.toUpperCase()}</span>
+        </div>
+        <div style="font-size:16px;font-weight:700;margin:10px 0 4px">${a.name}</div>
+        <div class="tiny" style="margin-bottom:12px">Location: ${a.location}</div>
+        <div class="row" style="border-top:1px solid #142a3f;padding-top:8px">
+          <span class="tiny">Battery: ⚡ ${a.battery}%</span>
+          <button class="mapBtn" onclick="pingAsset('${a.id}')">Ping RFID</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function filterAssets(filter, btn) {
+  document.querySelectorAll('#tab-assets .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAssets(filter);
+}
+
+function pingAsset(id) {
+  const ast = state.assets.find(a => a.id === id);
+  if (ast) {
+    ast.lastScan = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    showToast(`RFID Tag Scanned: ${ast.name}`, 'success');
+    saveState();
+  }
+}
+
+function simulateRFIDScan() {
+  showToast('Scanning local RFID frequencies... 148 tags detected', 'success');
+}
+
+// 4. INVENTORY RENDERER
+function renderInventory(filter = 'all') {
+  const tbody = document.getElementById('inventoryTableBody');
+  tbody.innerHTML = '';
+
+  let list = state.inventory;
+  if (filter !== 'all') {
+    list = list.filter(i => i.category === filter);
+  }
+
+  list.forEach(i => {
+    const pct = Math.min(100, Math.round((i.stock / (i.threshold * 2)) * 100));
+    const isLow = i.stock <= i.threshold;
+    const isCrit = i.stock <= i.threshold / 2;
+
+    tbody.innerHTML += `
+      <tr>
+        <td><b>${i.name}</b><br><span class="tiny">ID: ${i.id}</span></td>
+        <td>${i.category}</td>
+        <td style="font-family:var(--font-mono);font-size:14px"><b>${i.stock}</b> ${i.unit}</td>
+        <td style="width:140px">
+          <div class="bar">
+            <div class="fill ${isCrit ? 'danger' : ''}" style="width:${pct}%"></div>
+          </div>
+        </td>
+        <td style="font-family:var(--font-mono)">${i.threshold} ${i.unit}</td>
+        <td>
+          <span class="tag ${isCrit ? 'red' : isLow ? 'warn' : ''}">${isCrit ? 'CRITICAL' : isLow ? 'LOW STOCK' : 'OPTIMAL'}</span>
+        </td>
+        <td>
+          <button class="mapBtn" onclick="adjustStock('${i.id}', 5)">+5</button>
+          <button class="mapBtn" onclick="adjustStock('${i.id}', -5)">-5</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function filterInventory(filter, btn) {
+  document.querySelectorAll('#tab-inventory .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderInventory(filter);
+}
+
+function searchInventory() {
+  const q = document.getElementById('inventorySearch').value.toLowerCase();
+  const rows = document.querySelectorAll('#inventoryTableBody tr');
+  rows.forEach(r => {
+    const text = r.innerText.toLowerCase();
+    r.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+
+function adjustStock(id, amount) {
+  const item = state.inventory.find(i => i.id === id);
+  if (item) {
+    item.stock = Math.max(0, item.stock + amount);
+    item.status = item.stock <= item.threshold / 2 ? 'critical' : item.stock <= item.threshold ? 'low' : 'ok';
+    const msg = `🖥️ Dashboard update: ${item.name} adjusted to ${item.stock} ${item.unit}`;
+    showToast(msg);
+    saveState(msg, item.stock <= item.threshold ? 'danger' : 'success');
+  }
+}
+
+// 5. MAPS & GEOFENCE RENDERER
+function renderMaps() {
+  const container = document.getElementById('fullPinsContainer');
+  container.innerHTML = '';
+
+  state.mapPins.forEach(pin => {
+    const el = document.createElement('div');
+    el.className = `pin pin-${pin.color}`;
+    el.style.left = `${pin.x}%`;
+    el.style.top = `${pin.y}%`;
+    el.onclick = () => showToast(`Radar Pin Selected: ${pin.name}`);
+    
+    const lbl = document.createElement('div');
+    lbl.className = 'pin-label';
+    lbl.style.left = `${pin.x}%`;
+    lbl.style.top = `${pin.y}%`;
+    lbl.innerText = pin.name;
+
+    container.appendChild(el);
+    container.appendChild(lbl);
+  });
+
+  // Waypoints list
+  const wpList = document.getElementById('waypointsList');
+  wpList.innerHTML = '';
+  state.mapPins.forEach(pin => {
+    wpList.innerHTML += `
+      <div class="row">
+        <div><b>${pin.name}</b><div class="tiny">Coords: ${pin.x}% X, ${pin.y}% Y</div></div>
+        <span class="tag blue">${pin.type.toUpperCase()}</span>
+      </div>
+    `;
+  });
+
+  // Geofence radius slider text
+  document.getElementById('geofenceRadiusVal').innerText = `${state.geofenceRadius} km`;
+}
+
+function updateGeofenceRadius(val) {
+  state.geofenceRadius = val;
+  document.getElementById('geofenceRadiusVal').innerText = `${val} km`;
+  
+  const circle1 = document.getElementById('dashGeofenceCircle');
+  const circle2 = document.getElementById('fullGeofenceCircle');
+  
+  const size = val * 120;
+  if (circle1) { circle1.style.width = `${size}px`; circle1.style.height = `${size * 0.65}px`; }
+  if (circle2) { circle2.style.width = `${size * 1.5}px`; circle2.style.height = `${size}px`; }
+}
+
+function toggleRadarSweep() {
+  const sweeps = document.querySelectorAll('.radar-sweep');
+  sweeps.forEach(s => {
+    s.style.display = s.style.display === 'none' ? 'block' : 'none';
+  });
+  showToast('Toggled Radar Sweep Display');
+}
+
+function openAddWaypointModal() {
+  const name = prompt('Enter Waypoint Name:', 'Checkpoint Delta-4');
+  if (name) {
+    state.mapPins.push({
+      id: `PIN-${Date.now()}`,
+      name: name,
+      type: 'checkpoint',
+      x: 40 + Math.floor(Math.random() * 30),
+      y: 30 + Math.floor(Math.random() * 40),
+      color: 'cyan'
+    });
+    showToast(`Added waypoint: ${name}`, 'success');
+    saveState();
+  }
+}
+
+// 6. WEATHER & RISK RENDERER
+function renderWeather() {
+  document.getElementById('weatherTempDisplay').innerText = `${state.weather.temp}°C`;
+  document.getElementById('weatherWindDisplay').innerText = `${state.weather.wind} km/h`;
+  document.getElementById('weatherRiskDisplay').innerText = `${state.weather.riskIndex} / 100`;
+
+  document.getElementById('lblTempSlider').innerText = `${state.weather.temp}°C`;
+  document.getElementById('lblWindSlider').innerText = `${state.weather.wind} km/h`;
+
+  document.getElementById('sliderTemp').value = state.weather.temp;
+  document.getElementById('sliderWind').value = state.weather.wind;
+
+  // Recommendation engine
+  const recTitle = document.getElementById('recTitle');
+  const recDetail = document.getElementById('recDetail');
+  
+  if (state.weather.riskIndex > 75) {
+    recTitle.innerText = '🚨 CRITICAL WEATHER BLIZZARD ALERT';
+    recTitle.style.color = 'var(--red)';
+    recDetail.innerText = 'High frostbite danger within <10 minutes. Hangar evacuation protocol initiated. Surface teams must seek immediate shelter.';
+  } else if (state.weather.riskIndex > 50) {
+    recTitle.innerText = '⚠️ MODERATE SURFACE CAUTION';
+    recTitle.style.color = 'var(--amber)';
+    recDetail.innerText = 'Surface travel permitted with full Arctic suits. Maintain 30-minute radio heartbeats with Base Camp Delta.';
+  } else {
+    recTitle.innerText = '✅ OPTIMAL CLEAR WEATHER WINDOW';
+    recTitle.style.color = 'var(--green)';
+    recDetail.innerText = 'Favorable weather conditions for core drilling and surface transit operations.';
+  }
+}
+
+function onWeatherChange() {
+  const temp = parseInt(document.getElementById('sliderTemp').value);
+  const wind = parseInt(document.getElementById('sliderWind').value);
+  
+  state.weather.temp = temp;
+  state.weather.wind = wind;
+
+  // Calculate risk score: lower temp + higher wind = higher risk
+  const risk = Math.min(100, Math.max(10, Math.round((Math.abs(temp) * 1.5) + (wind * 0.8))));
+  state.weather.riskIndex = risk;
+
+  saveState();
+}
+
+function simulateBlizzard() {
+  state.weather.temp = -34;
+  state.weather.wind = 68;
+  onWeatherChange();
+  showToast('Simulating Heavy Blizzard Conditions!', 'danger');
+}
+
+function resetWeather() {
+  state.weather.temp = -12;
+  state.weather.wind = 15;
+  onWeatherChange();
+  showToast('Reset Weather to Clear Window', 'success');
+}
+
+// 7. EMERGENCY & SOS RENDERER
+function renderEmergency() {
+  const logContainer = document.getElementById('emergencyIncidentLog');
+  logContainer.innerHTML = '';
+  
+  if (!state.sosActive) {
+    logContainer.innerHTML = '<div class="tiny">No active emergency distress incidents recorded.</div>';
+  } else {
+    logContainer.innerHTML = `
+      <div class="row">
+        <div><b>SOS BROADCAST TRANSMITTED</b><div class="tiny">Satellite Channel 406 MHz active</div></div>
+        <span class="tag red">ACTIVE</span>
+      </div>
+      <div class="row">
+        <div><b>NCPOR HQ Acknowledged</b><div class="tiny">Dispatch Unit Standby</div></div>
+        <span class="tag warn">PENDING</span>
+      </div>
+    `;
+  }
+}
+
+function triggerSOSModal() {
+  openModal('modalSOS');
+}
+
+function confirmSOSBroadcast() {
+  closeModal('modalSOS');
+  state.sosActive = true;
+  state.personnel.forEach(p => { p.status = 'sos'; });
+  
+  // Add log entry
+  state.logs.unshift({
+    id: `LOG-${Date.now()}`,
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    title: '🚨 DISTRESS SOS ALARM ACTIVATED',
+    detail: 'Manual distress beacon triggered by command center.',
+    operator: 'HQ',
+    category: 'Emergency',
+    tag: 'EMERGENCY'
+  });
+
+  showToast('🚨 GLOBAL EMERGENCY DISTRESS ALARM ACTIVATED!', 'danger');
+  saveState();
+}
+
+function cancelSOS() {
+  state.sosActive = false;
+  state.personnel.forEach(p => { p.status = 'active'; });
+  showToast('Distress Emergency Alarm Deactivated', 'success');
+  saveState();
+}
+
+// 8. MISSION RECORDS RENDERER
+function renderRecords() {
+  const tbody = document.getElementById('logsTableBody');
+  tbody.innerHTML = '';
+
+  state.logs.forEach(l => {
+    tbody.innerHTML += `
+      <tr>
+        <td style="font-family:var(--font-mono)">${l.timestamp}</td>
+        <td><span class="tag blue">${l.category}</span></td>
+        <td><b>${l.title}</b></td>
+        <td class="tiny">${l.detail}</td>
+        <td style="font-family:var(--font-mono)">${l.operator}</td>
+        <td><span class="tag">${l.tag || 'LOCKED'}</span></td>
+      </tr>
+    `;
+  });
+}
+
+function searchLogs() {
+  const q = document.getElementById('logSearch').value.toLowerCase();
+  const rows = document.querySelectorAll('#logsTableBody tr');
+  rows.forEach(r => {
+    const text = r.innerText.toLowerCase();
+    r.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+
+function exportLogsJSON() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.logs, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `Mission_Logs_${Date.now()}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+  showToast('Exported Mission Logs as JSON', 'success');
+}
+
+function exportLogsCSV() {
+  let csv = "Timestamp,Category,Title,Detail,Operator,Tag\n";
+  state.logs.forEach(l => {
+    csv += `"${l.timestamp}","${l.category}","${l.title}","${l.detail}","${l.operator}","${l.tag || ''}"\n`;
+  });
+  const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `Mission_Logs_${Date.now()}.csv`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+  showToast('Exported Mission Logs as CSV', 'success');
+}
+
+// MODAL HANDLERS
+function openModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) modal.classList.add('open');
+}
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) modal.classList.remove('open');
+}
+
+function handleSaveLog(e) {
+  e.preventDefault();
+  const title = document.getElementById('logTitle').value;
+  const category = document.getElementById('logCategory').value;
+  const operator = document.getElementById('logOperator').value;
+  const detail = document.getElementById('logDetail').value;
+
+  state.logs.unshift({
+    id: `LOG-${Date.now()}`,
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    title: title,
+    detail: detail,
+    operator: operator.toUpperCase(),
+    category: category,
+    tag: 'LOGGED'
+  });
+
+  closeModal('modalLogActivity');
+  showToast('Activity Logged Successfully', 'success');
+  saveState();
+}
+
+function handleSavePersonnel(e) {
+  e.preventDefault();
+  const name = document.getElementById('pName').value;
+  const role = document.getElementById('pRole').value;
+  const team = document.getElementById('pTeam').value;
+  const coords = document.getElementById('pCoords').value;
+
+  state.personnel.push({
+    id: `P-0${state.personnel.length + 1}`,
+    name: name,
+    role: role,
+    team: team,
+    location: coords,
+    status: 'active',
+    heartRate: 72,
+    battery: 95,
+    lastHeartbeat: 'Just now'
+  });
+
+  closeModal('modalAddPersonnel');
+  showToast(`Added Personnel ${name}`, 'success');
+  saveState();
+}
+
+function handleSaveAsset(e) {
+  e.preventDefault();
+  const name = document.getElementById('astName').value;
+  const category = document.getElementById('astCategory').value;
+  const location = document.getElementById('astLocation').value;
+
+  state.assets.push({
+    id: `A-0${state.assets.length + 1}`,
+    name: name,
+    category: category,
+    location: location,
+    status: 'optimal',
+    battery: 100,
+    lastScan: 'Just now'
+  });
+
+  closeModal('modalAddAsset');
+  showToast(`Added Asset ${name}`, 'success');
+  saveState();
+}
+
+function handleSaveInventory(e) {
+  e.preventDefault();
+  const name = document.getElementById('invName').value;
+  const category = document.getElementById('invCategory').value;
+  const stock = parseInt(document.getElementById('invStock').value);
+  const unit = document.getElementById('invUnit').value;
+  const threshold = parseInt(document.getElementById('invThreshold').value);
+
+  state.inventory.push({
+    id: `INV-0${state.inventory.length + 1}`,
+    name: name,
+    category: category,
+    stock: stock,
+    unit: unit,
+    threshold: threshold,
+    status: stock <= threshold ? 'low' : 'ok'
+  });
+
+  closeModal('modalAddInventory');
+  showToast(`Added Inventory Item ${name}`, 'success');
+  saveState();
+}
+
+// REALTIME SIMULATION TICK (Ping animation)
+function toggleMapSim() {
+  state.simulating = !state.simulating;
+  document.getElementById('dashSimText').innerText = state.simulating ? 'Pause Ping' : 'Simulate Ping';
+  if (state.simulating) {
+    showToast('Started live movement simulation tick');
+  }
+}
+
+setInterval(() => {
+  if (state.simulating) {
+    state.mapPins.forEach(pin => {
+      pin.x += (Math.random() - 0.5) * 2;
+      pin.y += (Math.random() - 0.5) * 2;
+      pin.x = Math.max(10, Math.min(85, pin.x));
+      pin.y = Math.max(10, Math.min(85, pin.y));
+    });
+    renderMissionControl();
+    renderMaps();
+  }
+}, 3000);
+
+// INITIAL LOAD
+window.addEventListener('DOMContentLoaded', () => {
+  switchTab(state.activeTab || 'mission-control');
+  renderAllViews();
+});
+</script>
+
+</body>
+</html>
