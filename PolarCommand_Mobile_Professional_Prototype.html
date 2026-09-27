@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PolarCommand Mobile — Field Operations Prototype</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#020811;color:#edf7ff;font-family:Inter,Segoe UI,Arial,sans-serif}
+.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;background:radial-gradient(circle at 50% 10%,#12304a 0,#071321 35%,#020811 70%)}
+.phone{width:390px;height:820px;background:#071321;border:8px solid #182b3b;border-radius:42px;box-shadow:0 25px 80px #000b,0 0 0 1px #3a5265;overflow:hidden;position:relative}
+.status{height:31px;background:#071321;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:11px;color:#c6d7e5}.island{position:absolute;top:7px;left:50%;transform:translateX(-50%);width:95px;height:23px;background:#02070d;border-radius:20px;z-index:9}
+.screen{height:calc(100% - 31px);overflow:auto;padding-bottom:78px}.screen::-webkit-scrollbar{display:none}
+.page{display:none;padding:18px 18px 5px}.page.active{display:block}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:17px}.brand{font-size:20px;font-weight:850}.brand small{display:block;font-size:9px;letter-spacing:1.4px;color:#42d9ff;margin-top:3px}.avatar{width:38px;height:38px;border-radius:13px;background:#14334a;display:grid;place-items:center;color:#44d9ff;font-weight:800}
+.card{background:linear-gradient(145deg,#0c1c2c,#091725);border:1px solid #19354b;border-radius:17px;padding:15px;margin-bottom:12px}.hero{background:linear-gradient(145deg,#0d3146,#0b1e30);border-color:#21506a}
+.label{color:#91a9bb;font-size:11px}.title{font-size:23px;font-weight:850;margin:4px 0}.muted{color:#91a9bb}.cyan{color:#3bd7ff}.green{color:#3be3a7}.amber{color:#ffc85b}.red{color:#ff6878}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{min-height:93px}.big{font-size:25px;font-weight:850;margin:9px 0 3px}.pill{font-size:10px;font-weight:800;padding:5px 8px;border-radius:7px;background:#0d352c;color:#3be3a7}.pill.amber{background:#3b2d0e;color:#ffc85b}.pill.red{background:#401923;color:#ff6878}
+.btn{width:100%;border:0;border-radius:12px;padding:13px;font-weight:850;background:#29cef4;color:#03131e;margin-top:7px}.btn.dark{background:#10283b;color:#dceaf4;border:1px solid #1e4058}.btn.sos{background:#ef5267;color:white;font-size:16px}
+.progress{height:7px;background:#142d41;border-radius:99px;overflow:hidden;margin-top:8px}.fill{height:100%;width:72%;background:linear-gradient(90deg,#2dc9f1,#3be3a7)}
+.item{padding:11px 0;border-bottom:1px solid #173047}.item:last-child{border-bottom:0}.icon{width:36px;height:36px;border-radius:11px;background:#112b40;display:grid;place-items:center;color:#42d9ff;font-weight:800;flex:none}.left{display:flex;align-items:center;gap:10px}.tiny{font-size:10px;color:#829aac}.body{font-size:12px;line-height:1.45}
+.map{height:315px;border-radius:15px;position:relative;overflow:hidden;background:#081b2b;border:1px solid #1b3b51}.map:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#17364b 1px,transparent 1px),linear-gradient(90deg,#17364b 1px,transparent 1px);background-size:35px 35px}.snow{position:absolute;inset:25px 10px;background:#bfeafa;opacity:.12;clip-path:polygon(3% 35%,18% 15%,32% 24%,45% 9%,60% 20%,73% 8%,98% 28%,90% 55%,100% 76%,77% 88%,55% 72%,38% 95%,17% 78%,0 83%)}.route{position:absolute;height:3px;width:65%;left:17%;top:58%;background:#3bd7ff;transform:rotate(-19deg);box-shadow:0 0 14px #3bd7ff}.zone{position:absolute;width:155px;height:105px;border:1px dashed #3be3a7;border-radius:50%;left:42%;top:28%}.pin{position:absolute;width:11px;height:11px;border-radius:50%;background:#3bd7ff;box-shadow:0 0 0 5px #3bd7ff22,0 0 14px #3bd7ff}.a{left:25%;top:56%}.b{left:66%;top:27%;background:#3be3a7}.c{left:75%;top:69%;background:#ffc85b}.maptag{position:absolute;top:12px;left:12px;background:#061522dd;border:1px solid #23445b;padding:8px;border-radius:9px;font-size:10px}.mapbottom{position:absolute;bottom:10px;left:10px;right:10px;background:#061522dd;border:1px solid #23445b;padding:8px;border-radius:9px;font-size:10px;display:flex;justify-content:space-between}
+.qr{height:220px;background:repeating-linear-gradient(90deg,#fff 0 5px,#071321 5px 9px),repeating-linear-gradient(0deg,transparent 0 7px,#fff 7px 11px);opacity:.85;margin:15px auto;width:220px;position:relative}.qr:after{content:"SCAN";position:absolute;inset:75px;background:#071321;color:#3bd7ff;display:grid;place-items:center;font-weight:900;letter-spacing:2px}
+.bottomnav{position:absolute;bottom:0;left:0;right:0;height:68px;background:#081725f5;border-top:1px solid #18364c;display:grid;grid-template-columns:repeat(5,1fr);z-index:5}.navbtn{border:0;background:none;color:#70899b;font-size:9px}.navbtn b{display:block;font-size:19px;margin-bottom:3px}.navbtn.active{color:#42d9ff}
+.toast{position:absolute;left:15px;right:15px;bottom:80px;background:#102e3e;border:1px solid #2b6077;border-radius:12px;padding:12px;display:none;z-index:10;font-size:11px}.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="phone">
+<div class="island"></div>
+<div class="status"><span id="time">18:46</span><span>▮▮▮  Wi‑Fi  ◉  92%</span></div>
+<div class="screen">
+
+<section class="page active" id="home">
+<div class="header"><div class="brand">PolarCommand<small>FIELD OPERATIONS</small></div><div class="avatar">KS</div></div>
+<div class="card hero"><div class="label">GOOD EVENING, KARTHIKEYAN</div><div class="title">Mission status: <span class="green">ACTIVE</span></div><div class="body muted">Arctic Expedition AX-26 · Team Alpha</div><div class="row" style="margin-top:15px"><span class="pill">● OFFLINE-READY</span><span class="tiny">Last sync 18:42</span></div></div>
+<div class="grid2">
+<div class="card stat"><div class="label">MY STATUS</div><div class="big green">SAFE</div><div class="tiny">Heartbeat 18:41</div></div>
+<div class="card stat"><div class="label">TEMP</div><div class="big">−18°C</div><div class="tiny">Wind 28 km/h</div></div>
+</div>
+<div class="card"><div class="row"><div><b>Today's Mission</b><div class="tiny">Checkpoint 04 of 06</div></div><span class="pill">ON ROUTE</span></div><div class="progress"><div class="fill" style="width:67%"></div></div><div class="row" style="margin-top:10px"><span class="tiny">Camp Delta → Research Zone</span><b>67%</b></div></div>
+<div class="card"><div class="sectionTitle" style="font-weight:800">Priority Alerts</div>
+<div class="item"><div class="left"><div class="icon">⚠</div><div><b>Emergency batteries</b><div class="tiny">Inventory critically low · 7 units</div></div></div><span class="amber">!</span></div>
+<div class="item"><div class="left"><div class="icon">☁</div><div><b>Weather window</b><div class="tiny">Moderate risk · monitor wind</div></div></div><span class="amber">62</span></div></div>
+</section>
+
+<section class="page" id="mission">
+<div class="header"><div><div class="label">CURRENT ASSIGNMENT</div><div class="title">My Mission</div></div><span class="pill">ACTIVE</span></div>
+<div class="card hero"><div class="label">AX-26 / TEAM ALPHA</div><div class="title">Survey Route Delta</div><div class="body muted">Field research and environmental data collection</div><div class="grid2" style="margin-top:15px"><div><div class="tiny">START</div><b>Camp Delta</b></div><div><div class="tiny">DESTINATION</div><b>Zone R-04</b></div></div></div>
+<div class="card"><div class="sectionTitle">Checkpoints</div>
+<div class="item"><div class="left"><div class="icon">✓</div><div><b>Camp Delta</b><div class="tiny">Completed · 16:10</div></div></div><span class="pill">DONE</span></div>
+<div class="item"><div class="left"><div class="icon">✓</div><div><b>Checkpoint 03</b><div class="tiny">Completed · 17:25</div></div></div><span class="pill">DONE</span></div>
+<div class="item"><div class="left"><div class="icon">04</div><div><b>Checkpoint 04</b><div class="tiny">Current location</div></div></div><span class="pill amber">NOW</span></div>
+<div class="item"><div class="left"><div class="icon">05</div><div><b>Research Zone</b><div class="tiny">Pending</div></div></div><span class="tiny">NEXT</span></div>
+</div><button class="btn" onclick="toast('Checkpoint recorded locally. It will sync automatically when connectivity returns.')">✓  Complete Checkpoint</button>
+</section>
+
+<section class="page" id="mapPage">
+<div class="header"><div><div class="label">OFFLINE MAP</div><div class="title">Live Expedition Map</div></div><span class="pill">GPS ON</span></div>
+<div class="map"><div class="snow"></div><div class="zone"></div><div class="route"></div><div class="pin a"></div><div class="pin b"></div><div class="pin c"></div><div class="maptag"><b>FIELD CAMP DELTA</b><br><span class="tiny">Cached 1.2 km area</span></div><div class="mapbottom"><span>● You · 24m accuracy</span><span style="color:#3be3a7">● Safe zone</span></div></div>
+<div class="grid2" style="margin-top:12px"><button class="btn dark" onclick="toast('Re-centred on your current GPS position.')">⌖ Re-centre</button><button class="btn dark" onclick="toast('Route guidance opened.')">↗ Navigate</button></div>
+<div class="card" style="margin-top:12px"><div class="row"><div><b>Geofence status</b><div class="tiny">Camp Delta safety perimeter</div></div><span class="pill">SECURE</span></div></div>
+</section>
+
+<section class="page" id="scan">
+<div class="header"><div><div class="label">ASSET MANAGEMENT</div><div class="title">Scan Asset</div></div><span class="pill">CAMERA</span></div>
+<div class="card" style="text-align:center"><div class="label">POSITION QR / BARCODE INSIDE FRAME</div><div class="qr"></div><div class="tiny">Scanning works offline. Records are queued for synchronization.</div></div>
+<button class="btn" onclick="toast('Demo scan successful — Cargo C-07 identified.')">◉ Simulate Scan</button>
+<div class="card" style="margin-top:12px"><div class="row"><div><b>Last scanned</b><div class="tiny">Cargo Unit C-07 · Logistics</div></div><span class="pill">VERIFIED</span></div><div class="item"><div class="row"><span>Destination</span><b>Camp Delta</b></div></div><div class="item"><div class="row"><span>Condition</span><span class="green">Good</span></div></div></div>
+</section>
+
+<section class="page" id="inventory">
+<div class="header"><div><div class="label">SUPPLIES</div><div class="title">Inventory</div></div><span class="pill">LOCAL DB</span></div>
+<div class="card"><div class="row"><div><b>Medical Oxygen</b><div class="tiny">12 units remaining</div></div><span class="pill amber">LOW</span></div><div class="progress"><div class="fill" style="width:42%"></div></div></div>
+<div class="card"><div class="row"><div><b>Diesel Fuel</b><div class="tiny">18% remaining · 2.1 days</div></div><span class="pill amber">LOW</span></div><div class="progress"><div class="fill" style="width:18%"></div></div></div>
+<div class="card"><div class="row"><div><b>Emergency Batteries</b><div class="tiny">7 units remaining</div></div><span class="pill red">CRITICAL</span></div><div class="progress"><div class="fill" style="width:12%"></div></div></div>
+<button class="btn" onclick="toast('Inventory adjustment saved offline and added to sync queue.')">＋ Record Inventory Movement</button>
+</section>
+
+<section class="page" id="alerts">
+<div class="header"><div><div class="label">SAFETY CENTER</div><div class="title">Alerts</div></div><span class="pill">2 ACTIVE</span></div>
+<div class="card"><div class="alert"><div class="left"><div class="icon">⚠</div><div><b>Inventory critical</b><div class="tiny">Emergency batteries below threshold</div><div class="tiny">18:22 · Local alert</div></div></div></div>
+<div class="item"><div class="left"><div class="icon">☁</div><div><b>Weather risk: Moderate</b><div class="tiny">Wind speed 28 km/h · monitor conditions</div></div><span class="pill amber">62/100</span></div></div>
+<div class="item"><div class="left"><div class="icon">✓</div><div><b>Geofence secure</b><div class="tiny">No boundary violations detected</div></div><span class="pill">CLEAR</span></div></div>
+</div>
+<button class="btn sos" onclick="toast('SOS confirmation initiated. In a real deployment this triggers the emergency workflow and SMS fallback.')">SOS — EMERGENCY</button>
+</section>
+
+<section class="page" id="activity">
+<div class="header"><div><div class="label">MISSION RECORDS</div><div class="title">Activity Log</div></div><span class="pill">TAMPER-PROOF</span></div>
+<div class="card"><div class="item"><div class="row"><div><b>Asset C-07 scanned</b><div class="tiny">18:38 · QR verified · KS</div></div><span class="pill">LOCKED</span></div></div>
+<div class="item"><div class="row"><div><b>Route checkpoint saved</b><div class="tiny">18:31 · GPS + timestamp</div></div><span class="pill">LOCKED</span></div></div>
+<div class="item"><div class="row"><div><b>Inventory adjustment</b><div class="tiny">18:22 · 3 batteries issued</div></div><span class="pill">LOCKED</span></div></div>
+<div class="item"><div class="row"><div><b>Heartbeat synced</b><div class="tiny">18:18 · Team Alpha</div></div><span class="pill">LOCKED</span></div></div></div>
+<div class="card"><div class="row"><div><b>Offline Sync Queue</b><div class="tiny">3 records waiting</div></div><span class="amber">●</span></div><button class="btn dark" onclick="toast('3 records marked for synchronization when online.')">View Queue</button></div>
+</section>
+
+<section class="page" id="profile">
+<div class="header"><div><div class="label">PERSONNEL</div><div class="title">My Profile</div></div></div>
+<div class="card hero"><div class="row"><div class="left"><div class="avatar" style="width:52px;height:52px">KS</div><div><b style="font-size:17px">Karthikeyan S.</b><div class="tiny">Field Researcher · Team Alpha</div></div></div><span class="pill">ACTIVE</span></div></div>
+<div class="card"><div class="item"><div class="row"><span class="muted">Mission ID</span><b>AX-26</b></div></div><div class="item"><div class="row"><span class="muted">Heartbeat</span><span class="green">18:41 · Healthy</span></div></div><div class="item"><div class="row"><span class="muted">Connectivity</span><span class="amber">Local / Offline-ready</span></div></div><div class="item"><div class="row"><span class="muted">Device storage</span><span>72% free</span></div></div></div>
+<button class="btn dark" onclick="toast('Settings screen opened in the production application.')">⚙ App Settings</button>
+</section>
+
+</div>
+<div class="toast" id="toast"></div>
+<div class="bottomnav">
+<button class="navbtn active" onclick="go('home',this)"><b>⌂</b>Home</button>
+<button class="navbtn" onclick="go('mission',this)"><b>◈</b>Mission</button>
+<button class="navbtn" onclick="go('mapPage',this)"><b>⌖</b>Map</button>
+<button class="navbtn" onclick="go('alerts',this)"><b>⚠</b>Alerts</button>
+<button class="navbtn" onclick="go('profile',this)"><b>●</b>Profile</button>
+</div>
+</div>
+</div>
+<script>
+function go(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');document.querySelector('.screen').scrollTop=0}
+function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),3000)}
+setInterval(()=>{let d=new Date();document.getElementById('time').textContent=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:false})},30000)
+</script>
+</body>
+</html>
